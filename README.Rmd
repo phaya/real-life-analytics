@@ -6,7 +6,7 @@ output: github_document
 
 Nos encontramos en una época donde estamos muy cerca de cumplir todos los postulados de la computación ubicua que proponía Weiser (1991). Gracias a la Internet de la Cosas (Internet of Things - IoT) en los próximos años asistiremos a la aparición de una explosión de objetos de la vida cotidiana a los que se incorpara capacidad computo y de comunicación a través de Internet. 
 
-De momento, si podemos hablar que disponemos de computación y conectividad en cualquier lugar y cualquier momento gracias a los teléfonos inteligentes. Es más, nuestra actividad diaria está siendo continuamente monitorizada, a veces sin ser plenamente conscientes, a través de múltiples dispositivos y sensores tanto propios como ajenos. El resultado es que vamos dejando una huella digital dispersa en múltiples bases de datos, pero lo suficiente rica para realizar análisis interesantes aunque sea de cada base de datos de manera individual.
+De momento, si podemos hablar que disponemos de computación y conectividad en cualquier lugar y cualquier momento gracias a los teléfonos inteligentes. Es más, nuestra actividad diaria está siendo continuamente monitorizada, a veces sin ser plenamente conscientes, a través de múltiples dispositivos y sensores tanto propios como ajenos. El resultado es que vamos dejando una huella digital dispersa en múltiples bases de datos, pero lo suficiente rica como para realizar análisis interesantes incluso empleando cada base de datos de manera individual.
 
 **Todo** introducir Social Physics
 
@@ -16,14 +16,14 @@ Esta práctica tiene como objetivo introducir el análisis de datos espacio-temp
 
 ## Instalación
 
-El siguiente código ha sido probado con R `r R.version.string` y RStudio 1.2.240
+El siguiente código ha sido probado con `r R.version.string` y RStudio 1.2.240. Es preciso instalar los siguientes paquetes si no estuvieran disponibles:
 
-```{r install}
-install.packages(tidyverse)
-install.packages(cowplot)
-install.packages(hexbin)
-install.packages(lubridate)
-install.packages(scales)
+```{r install, eval=FALSE}
+install.packages("tidyverse")
+install.packages("cowplot")
+install.packages("hexbin")
+install.packages("lubridate")
+install.packages("scales")
 ```
 
 ## Para saber más

@@ -1,0 +1,489 @@
+---
+title: "Taxis de Nueva York"
+author: "Pablo A Haya (Sustituir por nombre alumnos)"
+date: "9 Abril de 2018"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+  html_notebook: default
+---
+```{r global_options, include=FALSE}
+rm(list=ls()) 
+library(knitr)
+opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+```
+# Inicialización
+
+El siguiente código ha sido probado con `r R.version.string` y RStudio 1.2.240
+
+Primeramente, es necesario cargar todas las bibliotecas que se van a emplear durante el proyecto.
+
+```{r results="hide"}
+library(tidyverse)
+library(cowplot)
+library(hexbin)
+library(lubridate)
+library(scales)
+
+#theme_set(theme_cowplot(font_size=12)) # reduce default font size
+```
+
+Recordar que es preciso instalar previamente aquellas bibliotecas que no estuvieran disponibles. Por ejemplo:
+```
+install.packages("tidyverse")
+```
+
+Cargamos también funciones que nos son útiles en la última parte de la práctica. La función permite `gcd_slc` calcula la distancia geodésica entre dos puntos definidos en coordenadas cartesianas. Precisa de la función `deg2rad` para convertir dichas coordenadas de grados a radianes. 
+
+```{r results="hide"}
+# source: https://www.r-bloggers.com/great-circle-distance-calculations-in-r/
+# Convert degrees to radians
+deg2rad <- function(deg) {
+    return(deg*pi/180)
+}
+
+# Calculates the great-circle distance (gdc), also called geodesic distance, 
+# between two points specified by radian latitude/longitude using the Spherical 
+# Law of Cosines (slc) The Spherical Law of Cosines performs well as long as the
+# distance is not to small (some sources claim it’s accuracy deteriorates at
+# about the 1 metre scale). 
+# Return distance in Km
+gcd_slc <- function(long1, lat1, long2, lat2) {
+    # Convert degrees to radians
+    long1 <- deg2rad(long1)
+    lat1 <- deg2rad(lat1)
+    long2 <- deg2rad(long2)
+    lat2 <- deg2rad(lat2)
+    
+    R <- 6371 # Earth mean radius [km]
+    d <- acos(sin(lat1)*sin(lat2) + cos(lat1)*cos(lat2) * cos(long2-long1)) * R
+    return(d) # Distance in km
+}
+```
+
+# Carga y limpieza de datos
+
+El conjunto de datos que vamos a utilizar contiene los viajes realizados el día 14 de enero de 2013, y se puede descargar desde:
+
+https://www.dropbox.com/s/nmtodtuvpb8f87d/trip_data_2013-01-14.csv?dl=0
+
+Una vez descargado el fichero, se recomienda incluirlo dentro de un carpeta _data_ dentro del directorio donde se haya descargado este _notebook_. La función <code>read_csv</code> permite carga el archivo CSV en un _data frame_ infiriendo automáticamente el tipo de datos de cada columna.
+
+```{r}
+df <- read_csv("data/trip_data_2013-01-14.csv")
+```
+
+El _dataset_ tiene los siguientes campos:
+```{r}
+colnames(df)
+```
+
+* **medallion**: concesión otorgada a un taxista por la ciudad de NY para poder operar un taxi amarillo (los famosos Yellow Cabs). Se puede utilizar como identificador del conductor. Más información en https://en.wikipedia.org/wiki/Taxicabs_of_New_York_City#Medallions
+* **hack_license**: la licencia que permite identificar a cada taxi. Más información en http://nycitycab.com/HackLicense.aspx
+* **vendor_id**: identificador del proveedor tecnológico que suministra el sistema de recolección de datos sobre cada viaje. Por ejemplo, Verifone Transportation Systems (VTS), o Mobile Knowledge Systems Inc (CMT).
+* **rate_code**: tarifa a aplicar. Más información en http://www.nyc.gov/html/tlc/html/passenger/taxicab_rate.shtml
+* **store_and_fwd_flag**: atributo que se desconoce su utilidad.
+* **pickup_datetime**: hora de comienzo del viaje, aaaa-mm-dd hh24:mm:ss EDT. 
+* **dropoff_datetime**: hora de fin del viaje, aaaa-mm-dd hh24:mm:ss EDT.
+* **passenger_count**: número de pasajeros siendo el valor por defecto de uno.
+* **trip_time_in_secs**: duración del viaje en segundos.
+* **trip_distance**: distancia del viaje en millas.
+* **pickup_longitude / pickup_latitude**: coordenadas GPS del origen del viaje.
+* **dropoff_longitude / dropoff_latitude**: coordenadas GPS del destino del viaje.
+
+Las marcas de tiempo están referidas al uso horario _Eastern Daylight Time_ (EDT) que es donde está ubicado Nueva York, y que corresponde cuatro horas menos respecto a _Coordinated Universal Time_ (UTC). Aunque en nuestro caso no afecta, hay que tener en cuanta que los "medallones" y las licencias se reasignan cada año imposibilitando seguir a un mismo conductor o vehículo más allá del año.
+
+<!-- 
+Explicación en 
+https://publish.illinois.edu/dbwork/open-data/
+-->
+
+# Limpiar registros con datos incorrectos
+
+Antes de comezar cualquier análisis hay que asegurar que el conjunto de datos no contenga valores absurdos. La función <code>summary</code> extrae un resumen parámetros donde se pueden ver rápidamente los valores mínimos y máximos, así como la distribución por cuantiles de los mismos.
+```{r}
+summary(df)
+```
+
+Es nececario entender bien cada variable, incluyendo las unidades si las hubiera y su tipo de datos. Una manera de visualizar la distribución es empleando la función de distribución acumulada empírica (_ECDF_) que muestra la probabilidad (eje y) de que una variable tenga un valor menor o igual que x. Aunque su interpretación es menos intuitiva que un histograma, la visualización es más robusta en cuanto que no depende de un parámetro como puede ser el tamaño del intervalo. En las dos gráficas que se muestran abajo queda claro que tanto la longitud como la latitud tiene un amplio rango de valores que están fuera de lo esperado.
+
+```{r}
+plot1 <- ggplot(df, aes(x=pickup_longitude)) + stat_ecdf()
+plot2 <- ggplot(df, aes(x=pickup_latitude)) + stat_ecdf()
+plot_grid(plot1, plot2, labels = c('lon', 'lat'))
+```
+
+> Q: ¿Qué variables son susceptibles de tener valores incompatibles?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+Por ejemplo, ¿tiene sentido que la distancia del viaje o que el tiempo del viaje sea 0?. Una vez identificadas es necesario definir que acciones tomar con estos valores. Una estrategia es imputarle un valor. Por ejemplo, la distancia de viaje se puede aproximar por la distancia desde el origen al destino. El tiempo de viaje se puede hallar la velocidad media, y calcular el tiempo con la distancia. Se puede ser más conservador y cambiar los valores que no son aceptables por <code>NA</code> (Not Avaliable).
+
+Esta segunda estrategia es la que se va a seguir en cada una de las variables. Una primera transformación va a ser sustituir aquellas coordenadas de recogida o bajada de pasajeros que no corresponde a la ciudad de Nueva York. Una manera bastante sencilla de delimitar el área de la ciudad es mediante un rectángulo o _bounding box_. Este rectángulo se puede localizar directamente a través de Internet.
+
+> Q: ¿Cual es el _bounding box_ de NY?
+
+```{r}
+# Incluir las coordenadas correspondientes, y ejecutar el trozo de código
+nw <- list(lat = XX, lon = YY)
+se <- list(lat = XX, lon = YY)
+```
+
+Una vez definido el _bounding box_ se sustituye por <code>NA</code> cualquier coordenada que se encuentre fuera.
+
+```{r}
+# set coordinates outside of NYC bounding box to NA
+df <- df %>% 
+        mutate(pickup_longitude = replace(pickup_longitude,
+                                           which(pickup_longitude < nw$lon 
+                                                 | pickup_longitude > se$lon),
+                                           NA)) %>%
+        mutate(pickup_latitude = replace(pickup_latitude,
+                                           which(pickup_latitude < se$lat 
+                                                 | pickup_latitude > nw$lat),
+                                           NA)) %>%
+        mutate(dropoff_longitude = replace(dropoff_longitude,
+                                           which(dropoff_longitude < nw$lon 
+                                                 | dropoff_longitude > se$lon),
+                                           NA)) %>%
+        mutate(dropoff_latitude = replace(dropoff_latitude,
+                                           which(dropoff_latitude < se$lat 
+                                                 | dropoff_latitude > nw$lat),
+                                           NA))
+```
+
+> T: Realizar transformaciones similares en el resto de atributos que lo necesiten
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+Una vez terminadas la limpieza es conveniente identificar el impacto que ha tenido en cada variable:
+```{r}
+sapply(df, function(y) sum(is.na(y)))
+```
+
+y en total cuantos registros han sido afectados. Antes eliminamos el atributo _store_and_fwd_flag_ ya que tiene un número elevado de <code>NA</code>, y además no sabemos interpretar.
+```{r}
+df <- df %>% select(-store_and_fwd_flag)
+table(complete.cases(df))
+```
+
+> Q: ¿Cuál es porcentaje de registros que contienen algún campo invalidos (NA) sin contar store_and_fwd_flag? ¿Existe alguna variable que tenga un número de valores inválidos superior al 10%?
+
+# Exploración inicial
+
+Una vez dispuesto un conjunto de datos limpios vamos a comenzar con una serie de preguntas básicas que permiten entender un poco más en detalle cómo conducen los taxista en Nueva York.
+
+> Q: ¿Cuantos viajes se hacen en promedio por un mismo taxista? ¿y cómo máximo?
+
+Esta pregunta se puede responder mediante la función <code>summary</code> o gráficamente pintando tanto la _ecdf_ como el histograma. En todos los casos, es preciso primero contabilizar el número de viajes que hace cada taxista para lo cual se emplea la función <code>table</code>
+
+```{r}
+medallions <- as.data.frame(table(df$medallion))
+plot1 <- ggplot(medallions, aes(Freq)) + stat_ecdf()
+plot2 <- ggplot(medallions, aes(Freq)) + geom_histogram(binwidth = 5)
+plot_grid(plot1, plot2, labels = c("ecdf", "hist"))
+```
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+> Q: ¿Cuantos viajes se hacen en promedio por un mismo taxi? ¿Qué relación existe con los viajes por los taxistas?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+> Q: ¿Cuál es el tiempo medio y la distancia media de un carrera?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+> Q: ¿Cuál es la velocidad media a la que conducen los taxis en Nueva York? 
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+> Q: ¿Cómo es la distribución del número de pasajeros por viaje?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+# Distribución de los viajes
+
+Una de las información clave siempre que analizamos datos geoposicionados es la distribución de los mismos. En este caso, tenemos tanto los puntos de origen como de destino de cada viajes, pudiendo analizar las zonas de la ciudad donde se recogen a los pasajeros y se dejan a los viajeros.
+
+```{r}
+pickup_lonlat <- data.frame(x=df$pickup_longitude, y=df$pickup_latitude)
+plot_pickup <- ggplot(pickup_lonlat) + stat_binhex(aes(x=x, y=y), bins=300) +
+                                        scale_fill_gradientn(colours=c("black","green"))
+
+dropoff_lonlat <- data.frame(x=df$dropoff_longitude, y=df$dropoff_latitude)
+plot_dropoff <- ggplot(dropoff_lonlat) + stat_binhex(aes(x=x, y=y), bins=300) + 
+                                         scale_fill_gradientn(colours=c("black","green"))
+
+plot_grid(plot_pickup, plot_dropoff, labels = c('Pickup', 'Dropoff'))
+```
+
+> Q: ¿Cómo intepretas las diferencias y simulitudes en las distribución de recogidas y bajadas de viajeros?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+# Número de viajes a lo largo del día
+
+De la misma manera, podemos estudiar cómo varía el número de viajes en función de la hora día, obteniendo una aproximación al ciclo vida diario de la ciudad.
+
+```{r}
+dropoffs <- data.frame(time=sort(df$dropoff_datetime))
+dropoff_by_hour <- cut(dropoffs$time, breaks="1 hour", labels=FALSE)-1
+
+ts_dropoff <- dropoffs %>% 
+                mutate(hour = dropoff_by_hour) %>% 
+                group_by(hour) %>% 
+                summarise(freq = length(hour))
+
+ts_dropoff$hour <- as.POSIXct(ts_dropoff$hour*3600, origin = "1970-01-01", tz = "UTC")
+
+ggplot(ts_dropoff, aes(hour, freq)) + geom_line() + 
+        scale_x_datetime(labels = date_format("%k"), 
+                     breaks = date_breaks("1 hour"),
+                     minor_breaks = date_breaks("30 min")) +
+                     xlab("") + ylab("Número de bajadas") 
+```
+
+> Q: Describir este ciclo de actividad de la ciudad, y estudiar la relación que existe con el número de recogidas por hora  
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+# ¿Cuanto se tarda en llegar al aeropuerto JFK en taxi?
+
+Sin duda, una de las preguntas que muchos turista que visitan Nueva York se hacen con más frecuencia. Y más importante, cómo varía este tiempo según la hora del día.
+
+Lo primero que necesitamos es determinar dónde se encuentra el aeropuerto JFK
+
+> Q: ¿Cual es el _bounding box_ de JFK?
+```{r}
+jfk_nw <- list(lat = XX, lon = YY)
+jfk_se <- list(lat = XX, lon = YY)
+```
+
+Así podemos obtener todos las recogidas que se producen en un día en JFK
+```{r}
+jfk_pickups <- df %>% 
+                    filter(jfk_nw$lon < pickup_longitude & pickup_longitude < jfk_se$lon ) %>%
+                    filter(jfk_se$lat < pickup_latitude & pickup_latitude < jfk_nw$lat)
+```
+
+y todos los taxis que dejan viajeros en el aeropuerto
+```{r}
+jfk_dropoffs <- df %>% 
+                    filter(jfk_nw$lon < dropoff_longitude & dropoff_longitude < jfk_se$lon ) %>%
+                    filter(jfk_se$lat < dropoff_latitude & dropoff_latitude < jfk_nw$lat)
+```
+
+Simplemente contando el número de registros en cada uno de los _data_frame_ anteriores ya podemos responder a:
+
+> Q: ¿La gente coje el taxi para ir al aeropuerto o para venir del aeropuerto?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+> Q: ¿Qué porcentaje de los viajes en un día comienza o terminan en el aeropuerto?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+También nos puede interesar a dónde van los taxis desde el aeropuerto, y 
+```{r}
+jfk_pickup_lonlat <- data.frame(x=jfk_pickups$dropoff_longitude, y=jfk_pickups$dropoff_latitude)
+jfk_plot_pickup <- ggplot(jfk_pickup_lonlat) + stat_binhex(aes(x=x, y=y), bins=300) +
+                                        scale_fill_gradientn(colours=c("black","green"))
+```
+
+desde dónde se cogen taxis hacia el aeropuerto
+```{r}
+jfk_dropoff_lonlat <- data.frame(x=jfk_dropoffs$pickup_longitude, y=jfk_dropoffs$pickup_latitude)
+jfk_plot_dropoff <- ggplot(jfk_dropoff_lonlat) + stat_binhex(aes(x=x, y=y), bins=300) + 
+                                         scale_fill_gradientn(colours=c("black","green"))
+```
+
+```{r}
+plot_grid(jfk_plot_pickup, jfk_plot_dropoff, labels = c('To', 'From'))
+```
+
+> Q: ¿Qué diferencias existen entre los viajes que van hace el aeropuerto y los que parten de él?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+y, por fin, ¿cuanto se tarda en llegar al aeropuerto? Como la mayoría de los taxi se toman desde Manhattan vamos a tomar esa zona como referencia.
+
+Calculamos el _bounding_box_ aproximado:
+```{r}
+manh_nw <- list(lat = 40.881333, lon = -74.017639)
+manh_se <- list(lat = 40.700943, lon = -73.910522)
+```
+
+obtenemos todos los viajes desde Manhantan al JFK
+```{r}
+trips_manh_jfk <- df %>% 
+                    filter(manh_nw$lon < pickup_longitude & pickup_longitude < manh_se$lon ) %>%
+                    filter(manh_se$lat < pickup_latitude & pickup_latitude < manh_nw$lat) %>%
+                    filter(jfk_nw$lon < dropoff_longitude & dropoff_longitude < jfk_se$lon ) %>%
+                    filter(jfk_se$lat < dropoff_latitude & dropoff_latitude < jfk_nw$lat)
+```
+
+y ya podemos pintar la distribución de cuanto se tarda:
+```{r}
+plot1 <- ggplot(trips_manh_jfk, aes(trip_time_in_secs/60)) + stat_ecdf()
+plot2 <- ggplot(trips_manh_jfk, aes(trip_time_in_secs/60)) + geom_histogram(bins = 35)
+plot_grid(plot1, plot2, labels= c("edcd", "hist"))
+```
+
+> Q: ¿La mayor parte de los taxis (95%) que intervalo de tiempos tardan en llegar al JFK?
+
+Puedes emplear la función <code>quantile</code> si quieres calcular exactamente.
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+De nuevo, nos interesa ver la distribución de la duración del viaje dependiendo de las horas del día, dado que el tráfico varía sensiblemente. Como dentro de una franja horaria también puede haber una variabilidad elevada, vamos a dibujar los intervalos de confianza además del promedio
+
+```{r}
+dropoff_by_hour <- cut(trips_manh_jfk$dropoff_datetime, breaks="1 hour", labels=FALSE)-1
+
+ts_dropoff <- trips_manh_jfk %>% 
+                            mutate(hour = dropoff_by_hour) %>% 
+                            group_by(hour) %>% 
+                            summarise(q5 = quantile(trip_time_in_secs/60, prob=0.05),
+                                      q25 = quantile(trip_time_in_secs/60, prob=0.25), 
+                                      q50 = median(trip_time_in_secs/60), 
+                                      q75 = quantile(trip_time_in_secs/60, prob=0.75),
+                                      q95 = quantile(trip_time_in_secs/60, prob=0.95))
+
+ts_dropoff$hour <- as.POSIXct(ts_dropoff$hour*3600, origin = "1970-01-01", tz = "UTC")
+ggplot(ts_dropoff, aes(x=hour)) + 
+        geom_line(aes(y=q50, alpha = "  Median   ")) + 
+        geom_ribbon(aes(ymin = q25, ymax = q75, alpha = " 25–75th percentile   ")) +
+        geom_ribbon(aes(ymin = q5, ymax = q95, alpha = "10–90th percentile")) +
+        scale_alpha_manual("", values = c(1, 0.2, 0.2)) +    
+        scale_y_continuous("trip duration in minutes\n") +
+        scale_x_datetime(labels = date_format("%k"), 
+                     breaks = date_breaks("3 hours"),
+                     minor_breaks = date_breaks("1 hour")) +
+        xlab("") + ylab("Min") +
+        ggtitle("Tiempo de viaje desde Manhantan a JFK")
+```
+<!-- Nota interna: estos tiempo parecen demasiados pequeños -->
+
+> Q: ¿Cómo explica el ciclo de activida diaria que hemos dibujado antes esta gráfica?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+> Q: ¿Qué franja horario es la que tiene más variabilidad de duración de viaje?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+# Nueva York de día y noche
+
+Otro aspecto importante para los turistas es donde se puede descansar y donde se puede salir a tomar algo, y algunos, incluso querrán que tener ambas zonas lo más cercano posible. Para responder a este pregunta tenemos que dividir el conjunto de datos según la hora de día. 
+
+> Q: ¿Cuando comienza y termina la actividad diurna?
+
+Para determinar esta estimación puedes emplear gráficas anteriores o ir a buscar a Internet
+
+```{r}
+# Incluir tu estimación propia de cada umbral (0-23)
+start_daytime <- XXX
+end_daytime <- XXX
+```
+
+Partimos el _dataset_ en viajes nocturnos y diurnos
+```{r}
+daytime <- df %>% filter(start_daytime <= hour(pickup_datetime) & hour(pickup_datetime) < end_daytime)
+nighttime <- df %>% filter(! (start_daytime <= hour(pickup_datetime) & hour(pickup_datetime) < end_daytime))
+```
+
+y pintamos la distribución de los puntos partida de los taxis según el momento del día 
+```{r}
+daytime_plot <- ggplot(daytime) + stat_binhex(aes(x=pickup_longitude, y=pickup_latitude), bins=300) + 
+                                         scale_fill_gradientn(colours=c("gray","black"))
+nighttime_plot <- ggplot(nighttime) + stat_binhex(aes(x=pickup_longitude, y=pickup_latitude), bins=300) + 
+                                         scale_fill_gradientn(colours=c("gray","black"))
+
+plot_grid(daytime_plot, nighttime_plot, labels = c("day", "night"))
+```
+
+> Q: ¿Qué diferencias y similitudes existe entre el horario diurno y nocturno?
+
+***
+
+Incluir aquí la respuesta
+
+***
+
+# Parte de desarrollo propio
+
+La última parte de la práctica consiste en realizar un desarrollo propio en el que se van a combinar un nuevo conjunto de datos con los ya existente. 
+
+Desde esta URL:
+
+https://www.dropbox.com/s/lowbxfx2uohlxy3/All_Starbucks_Locations_in_the_US_2013.csv?dl=0
+
+te puedes bajar todas las ubicaciones que tenían los Starbucks de Estados Unidos en el año 2013. Se pide estimar los *cinco Starbucks* que tienen más clientes a partir de la actividad de los taxis.
+
+***
+
+Incluir aquí el código que genera la respuesta
+
+***

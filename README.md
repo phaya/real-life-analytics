@@ -1,67 +1,69 @@
----
-output: github_document
----
 
-# Analizando la realidad
+Analizando la realidad
+======================
 
-Nos encontramos en una época donde estamos muy cerca de cumplir todos los postulados de la computación ubicua que proponía Weiser (1991). Gracias a la Internet de la Cosas (Internet of Things - IoT) en los próximos años asistiremos a la aparición de una explosión de objetos de la vida cotidiana a los que se incorpara capacidad computo y de comunicación a través de Internet. 
+Nos encontramos en una época donde estamos muy cerca de cumplir todos los postulados de la computación ubicua que proponía Weiser (1991). Gracias a la Internet de la Cosas (Internet of Things - IoT) en los próximos años asistiremos a la aparición de una explosión de objetos de la vida cotidiana a los que se incorpara capacidad computo y de comunicación a través de Internet.
 
-De momento, si podemos hablar que disponemos de computación y conectividad en cualquier lugar y cualquier momento gracias a los teléfonos inteligentes. Es más, nuestra actividad diaria está siendo continuamente monitorizada, a veces sin ser plenamente conscientes, a través de múltiples dispositivos y sensores tanto propios como ajenos. El resultado es que vamos dejando una huella digital dispersa en múltiples bases de datos, pero lo suficiente rica para realizar análisis interesantes aunque sea de cada base de datos de manera individual.
+De momento, si podemos hablar que disponemos de computación y conectividad en cualquier lugar y cualquier momento gracias a los teléfonos inteligentes. Es más, nuestra actividad diaria está siendo continuamente monitorizada, a veces sin ser plenamente conscientes, a través de múltiples dispositivos y sensores tanto propios como ajenos. El resultado es que vamos dejando una huella digital dispersa en múltiples bases de datos, pero lo suficiente rica como para realizar análisis interesantes incluso empleando cada base de datos de manera individual.
 
 **Todo** introducir Social Physics
 
-## Práctica taxis de Nueva York
+Práctica taxis de Nueva York
+----------------------------
 
 Esta práctica tiene como objetivo introducir el análisis de datos espacio-temporales a partir de la traza digital que dejan los taxis de la ciudad de Nueva York. La organización TLC (Taxi and Limousine Commission) promovió en 2014 a través de [Taxicab Passenger Enhancements Project (TPEP)](http://www.nyc.gov/html/tlc/html/industry/taxicab_serv_enh_archive.shtml) que todos los taxis tenían que incorporar tecnologia que mejoraran la calidad del servicio. Entre estas tecnologías se encuentra la recolección automática de datos sobre cada viaje entre los que se incluyen el punto de recogida, el de bajada y la tarifa del viaje. Esta organización pone a disposición pública datos de los trayectos en los diferentes tipos de taxi de la ciudad de Nueva York desde el año 2009. Se analizaran los viajes realizados durante un día del año 2013 buscando responder preguntas relativas a la movilidad de los habitantes de Nueva York que impactan en el servicio de taxi.
 
-## Instalación
+Instalación
+-----------
 
-El siguiente código ha sido probado con R `r R.version.string` y RStudio 1.2.240
+El siguiente código ha sido probado con R version 3.3.2 (2016-10-31) y RStudio 1.2.240. Es preciso instalar los siguientes paquetes si no estuvieran disponibles:
 
-```{r install}
-install.packages(tidyverse)
-install.packages(cowplot)
-install.packages(hexbin)
-install.packages(lubridate)
-install.packages(scales)
+``` r
+install.packages("tidyverse")
+install.packages("cowplot")
+install.packages("hexbin")
+install.packages("lubridate")
+install.packages("scales")
 ```
 
-## Para saber más
+Para saber más
+--------------
 
 **Todo** meter enlace a último estudio con este conjunto de datos sobre la relación entre la reserva federal y los bancos de Wall Street
 
 La siguiente lista contiene enlaces de los que se han extraido información para elaborar esta práctica, y cuya lectura amplia las conclusiones que se hayan podido extraer de la misma.
 
-* [Taxicabs of New York City](https://en.wikipedia.org/wiki/Taxicabs_of_New_York_City)
-* [Exploration of NYC Taxi Data](http://hafen.github.io/taxi/)
-* [Analyzing 1.1 Billion NYC Taxi and Uber Trips, with a Vengeance
-](http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/)
-* [A Billion Taxi Rides on Google's BigQuery](http://tech.marksblogg.com/billion-nyc-taxi-rides-bigquery.html)
-* [NYC Taxi Trip and Fare Data Analytics using BigData](http://egr.uri.edu/wp-uploads/asee2016/42-150-1-DR.pdf)
-* [Public NYC Taxicab Database Lets You See How Celebrities Tip](http://gawker.com/the-public-nyc-taxicab-database-that-accidentally-track-1646724546)
-* [NYC Taxis: A Day in the Life](http://chriswhong.github.io/nyctaxi/)
-* [Uber Is Taking Millions Of Manhattan Rides Away From Taxis](https://fivethirtyeight.com/features/uber-is-taking-millions-of-manhattan-rides-away-from-taxis/)
-* [Should I Stay or Should I Go? NYC Taxis at the Airport](http://chriswhong.com/open-data/should-i-stay-or-should-i-go-nyc-taxis-at-the-airport/)
-* [Predicting Taxi Tip-Rates in NYC](https://cseweb.ucsd.edu/~jmcauley/cse190/reports/sp15/050.pdf)
-* [Analysis and modeling of large-scale systems : taxis and social polling](https://purl.stanford.edu/bz752gf4249)
+-   [Taxicabs of New York City](https://en.wikipedia.org/wiki/Taxicabs_of_New_York_City)
+-   [Exploration of NYC Taxi Data](http://hafen.github.io/taxi/)
+-   [Analyzing 1.1 Billion NYC Taxi and Uber Trips, with a Vengeance](http://toddwschneider.com/posts/analyzing-1-1-billion-nyc-taxi-and-uber-trips-with-a-vengeance/)
+-   [A Billion Taxi Rides on Google's BigQuery](http://tech.marksblogg.com/billion-nyc-taxi-rides-bigquery.html)
+-   [NYC Taxi Trip and Fare Data Analytics using BigData](http://egr.uri.edu/wp-uploads/asee2016/42-150-1-DR.pdf)
+-   [Public NYC Taxicab Database Lets You See How Celebrities Tip](http://gawker.com/the-public-nyc-taxicab-database-that-accidentally-track-1646724546)
+-   [NYC Taxis: A Day in the Life](http://chriswhong.github.io/nyctaxi/)
+-   [Uber Is Taking Millions Of Manhattan Rides Away From Taxis](https://fivethirtyeight.com/features/uber-is-taking-millions-of-manhattan-rides-away-from-taxis/)
+-   [Should I Stay or Should I Go? NYC Taxis at the Airport](http://chriswhong.com/open-data/should-i-stay-or-should-i-go-nyc-taxis-at-the-airport/)
+-   [Predicting Taxi Tip-Rates in NYC](https://cseweb.ucsd.edu/~jmcauley/cse190/reports/sp15/050.pdf)
+-   [Analysis and modeling of large-scale systems : taxis and social polling](https://purl.stanford.edu/bz752gf4249)
 
-## Datasets
+Datasets
+--------
 
-Los dos primeros enlaces están relacionados con el conjunto de datos utilizado en la práctica, siendo el segundo la página oficial desde donde se puede bajar los viajes en taxi desde 2009. El resto de las páginas contienen datos abiertos, y en particular, en Socrata  es donde se ha conseguido la ubicación de los Starbucks. 
+Los dos primeros enlaces están relacionados con el conjunto de datos utilizado en la práctica, siendo el segundo la página oficial desde donde se puede bajar los viajes en taxi desde 2009. El resto de las páginas contienen datos abiertos, y en particular, en Socrata es donde se ha conseguido la ubicación de los Starbucks.
 
-* [NYC Taxi Trips](http://www.andresmh.com/nyctaxitrips/)
-* [Official TLC Trip Record Data](http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml)
-* [NYC Open Data](https://nycopendata.socrata.com/)
-* [Socrata](https://opendata.socrata.com)
-* [Reality Commons](http:// realitycommons.media.mit.edu)
-    * Friends and Family
-    * Social Evolution
-    * Reality Mining
-    * Badge Data Set
+-   [NYC Taxi Trips](http://www.andresmh.com/nyctaxitrips/)
+-   [Official TLC Trip Record Data](http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml)
+-   [NYC Open Data](https://nycopendata.socrata.com/)
+-   [Socrata](https://opendata.socrata.com)
+-   [Reality Commons](http://%20realitycommons.media.mit.edu)
+    -   Friends and Family
+    -   Social Evolution
+    -   Reality Mining
+    -   Badge Data Set
 
-## Referencias
+Referencias
+-----------
 
-* Weiser, Mark (1991). “The Computer for the 21st Century”. http://www.ubiq.com/hypertext/weiser/SciAmDraft3.html
-* Pentland, Alex (2014) "Social Physics: How Social Networks Can Make Us Smarter". Penguin Publishing Group
-* [MIT Human Dynamics Lab](https://www.media.mit.edu/groups/human-dynamics/overview/)
-* [Data for Development](http://www.d4d.orange.com/en/Accueil)
+-   Weiser, Mark (1991). “The Computer for the 21st Century”. <http://www.ubiq.com/hypertext/weiser/SciAmDraft3.html>
+-   Pentland, Alex (2014) "Social Physics: How Social Networks Can Make Us Smarter". Penguin Publishing Group
+-   [MIT Human Dynamics Lab](https://www.media.mit.edu/groups/human-dynamics/overview/)
+-   [Data for Development](http://www.d4d.orange.com/en/Accueil)
