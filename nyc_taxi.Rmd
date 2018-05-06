@@ -66,7 +66,7 @@ gcd_slc <- function(long1, lat1, long2, lat2) {
 
 El conjunto de datos que vamos a utilizar contiene los viajes realizados el día 14 de enero de 2013, y se puede descargar desde:
 
-https://www.dropbox.com/s/nmtodtuvpb8f87d/trip_data_2013-01-14.csv?dl=0
+https://www.dropbox.com/s/nmtodtuvpb8f87d/trip_data_2013-01-14.csv?dl=1
 
 Una vez descargado el fichero, se recomienda incluirlo dentro de un carpeta _data_ dentro del directorio donde se haya descargado este _notebook_. La función <code>read_csv</code> permite carga el archivo CSV en un _data frame_ infiriendo automáticamente el tipo de datos de cada columna.
 
@@ -478,7 +478,7 @@ La última parte de la práctica consiste en realizar un desarrollo propio en el
 
 Desde esta URL:
 
-https://www.dropbox.com/s/lowbxfx2uohlxy3/All_Starbucks_Locations_in_the_US_2013.csv?dl=0
+https://www.dropbox.com/s/lowbxfx2uohlxy3/All_Starbucks_Locations_in_the_US_2013.csv?dl=1
 
 te puedes bajar todas las ubicaciones que tenían los Starbucks de Estados Unidos en el año 2013. Se pide estimar los *cinco Starbucks* que tienen más clientes a partir de la actividad de los taxis.
 

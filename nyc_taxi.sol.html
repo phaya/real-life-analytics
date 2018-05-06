@@ -78,7 +78,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <section class="main-content">
 <div id="inicializacion" class="section level1">
 <h1>Inicialización</h1>
-<p>El siguiente código ha sido probado con R R version 3.3.2 (2016-10-31) y RStudio 1.2.240</p>
+<p>El siguiente código ha sido probado con R version 3.3.2 (2016-10-31) y RStudio 1.2.240</p>
 <p>Primeramente, es necesario cargar todas las bibliotecas que se van a emplear durante el proyecto.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyverse)
 <span class="kw">library</span>(cowplot)
@@ -117,7 +117,7 @@ gcd_slc &lt;-<span class="st"> </span><span class="cf">function</span>(long1, la
 <div id="carga-y-limpieza-de-datos" class="section level1">
 <h1>Carga y limpieza de datos</h1>
 <p>El conjunto de datos que vamos a utilizar contiene los viajes realizados el día 14 de enero de 2013, y se puede descargar desde:</p>
-<p><a href="https://www.dropbox.com/s/nmtodtuvpb8f87d/trip_data_2013-01-14.csv?dl=0" class="uri">https://www.dropbox.com/s/nmtodtuvpb8f87d/trip_data_2013-01-14.csv?dl=0</a></p>
+<p><a href="https://www.dropbox.com/s/nmtodtuvpb8f87d/trip_data_2013-01-14.csv?dl=1" class="uri">https://www.dropbox.com/s/nmtodtuvpb8f87d/trip_data_2013-01-14.csv?dl=1</a></p>
 <p>Una vez descargado el fichero, se recomienda incluirlo dentro de un carpeta <em>data</em> dentro del directorio donde se haya descargado este <em>notebook</em>. La función <code>read_csv</code> permite carga el archivo CSV en un <em>data frame</em> infiriendo automáticamente el tipo de datos de cada columna.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&quot;data/trip_data_2013-01-14.csv&quot;</span>)</code></pre></div>
 <p>El <em>dataset</em> tiene los siguientes campos:</p>
@@ -481,65 +481,11 @@ nighttime_plot &lt;-<span class="st"> </span><span class="kw">ggplot</span>(nigh
 <h1>Parte de desarrollo propio</h1>
 <p>La última parte de la práctica consiste en realizar un desarrollo propio en el que se van a combinar un nuevo conjunto de datos con los ya existente.</p>
 <p>Desde esta URL:</p>
-<p><a href="https://www.dropbox.com/s/lowbxfx2uohlxy3/All_Starbucks_Locations_in_the_US_2013.csv?dl=0" class="uri">https://www.dropbox.com/s/lowbxfx2uohlxy3/All_Starbucks_Locations_in_the_US_2013.csv?dl=0</a></p>
+<p><a href="https://www.dropbox.com/s/lowbxfx2uohlxy3/All_Starbucks_Locations_in_the_US_2013.csv?dl=1" class="uri">https://www.dropbox.com/s/lowbxfx2uohlxy3/All_Starbucks_Locations_in_the_US_2013.csv?dl=1</a></p>
 <p>te puedes bajar todas las ubicaciones que tenían los Starbucks de Estados Unidos en el año 2013. Se pide estimar los <em>cinco Starbucks</em> que tienen más clientes a partir de la actividad de los taxis.</p>
 <hr />
 <p>Incluir aquí el código que genera la respuesta</p>
 <hr />
-<!--
-Extraemos el top5 para día y noche
-
-
-# Matriz origen - destino: número de desplazamiento
-Probar con un layout rectangular
-
-
-# Matriz origen - destino: dinero
-
-# Parting Thoughts (Credit card vs cash)
-
-
-# Using locations for Starbucks stores in New York. (Downloaded on 29/01/2014 from
-# https://opendata.socrata.com/Business/All-Starbucks-Locations-in-the-US/txu4-fsic)
--->
-<!--
-# Trip time vs. trip distance
-
-
-plot(df$trip_time_in_secs/(3600), df$trip_distance, xlab="t(h)",ylab="s(km)")
-
-Realizar el fit de la curva
-
-
-Partimos el espacio en celdas
-
-daytime_hexbin <- hexbin(daytime$pickup_longitude, daytime$pickup_latitude, xbins = 300,
-                                xbnds = c(nw$lon,se$lon),
-                                ybnds = c(se$lat,nw$lat), IDs = TRUE)
-nighttime_hexbin <- hexbin(nighttime$pickup_longitude, nighttime$pickup_latitude, xbins = 300,
-                                xbnds = c(nw$lon,se$lon),
-                                ybnds = c(se$lat,nw$lat), IDs = TRUE)
-
-
-PRUEBAS!!
-http://stackoverflow.com/questions/14495111/setting-hex-bins-in-ggplot2-to-same-size
-https://gist.github.com/wahalulu/1376861
-
-
-
-make_hexbin_ggplot <- function(hex_bin, cuts) {
-    hex_df <- data.frame(hcell2xy(hex_bin), count = hex_bin@count,
-                        xo = hex_bin@xcm, yo = hex_bin@ycm,
-                        c = cut2(hex_bin@count, g = cuts))
-    hex_plot <- ggplot(hex_df) +
-                geom_hex(aes(x = x, y = y, fill=c), stat = "identity") 
-    hex_plot
-}
-daytime_hexbin_ggplot <- make_hexbin_ggplot(daytime_hexbin, 4)
-nighttime_hexbin_ggplot <- make_hexbin_ggplot(nighttime_hexbin, 4)
-plot_grid(daytime_hexbin_ggplot, nighttime_hexbin_ggplot, labels = c('Day', 'Night'))
-```
--->
 </div>
 </section>
 
