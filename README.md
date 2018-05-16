@@ -38,6 +38,7 @@ install.packages("tidyverse")
 install.packages("cowplot")
 install.packages("hexbin")
 install.packages("lubridate")
+install.packages("prettydoc")
 install.packages("scales")
 ```
 

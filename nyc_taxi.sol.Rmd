@@ -1,6 +1,6 @@
 ---
 title: "Taxis de Nueva York"
-author: "Pablo A Haya (Sustituir por nombre alumnos)"
+author: "Pablo A Haya"
 date: "16 Mayo de 2018"
 output:
   prettydoc::html_pretty:
@@ -13,6 +13,7 @@ rm(list=ls())
 library(knitr)
 opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
 ```
+
 # Inicialización
 
 El siguiente código ha sido probado con `r R.version.string` y RStudio 1.2.240
@@ -68,7 +69,7 @@ El conjunto de datos que vamos a utilizar contiene los viajes realizados el día
 
 https://www.dropbox.com/s/nmtodtuvpb8f87d/trip_data_2013-01-14.csv?dl=1
 
-Una vez descargado el fichero, se recomienda incluirlo dentro de un carpeta _data_ dentro del directorio donde se haya descargado este _notebook_. La función <code>read_csv</code> permite carga el archivo CSV en un _data frame_ infiriendo automáticamente el tipo de datos de cada columna.
+Una vez descargado el fichero, se recomienda incluirlo dentro de un carpeta _data_ dentro del directorio donde se haya descargado este _notebook_. La función `read_csv` permite carga el archivo CSV en un _data frame_ infiriendo automáticamente el tipo de datos de cada columna.
 
 ```{r}
 df <- read_csv("data/trip_data_2013-01-14.csv")
@@ -79,8 +80,8 @@ El _dataset_ tiene los siguientes campos:
 colnames(df)
 ```
 
-* **medallion**: concesión otorgada a un taxista por la ciudad de NY para poder operar un taxi amarillo (los famosos Yellow Cabs). Se puede utilizar como identificador del conductor. Más información en https://en.wikipedia.org/wiki/Taxicabs_of_New_York_City#Medallions
-* **hack_license**: la licencia que permite identificar a cada taxi. Más información en http://nycitycab.com/HackLicense.aspx
+* **medallion**: concesión otorgada a un taxi amaraillo por la ciudad de NY para poder circular  (los famosos Yellow Cabs). Se puede utilizar como identificador del taxi. Más información en https://en.wikipedia.org/wiki/Taxicabs_of_New_York_City#Medallions
+* **hack_license**: la licencia que permite identificar a cada conductor. Más información en http://nycitycab.com/HackLicense.aspx
 * **vendor_id**: identificador del proveedor tecnológico que suministra el sistema de recolección de datos sobre cada viaje. Por ejemplo, Verifone Transportation Systems (VTS), o Mobile Knowledge Systems Inc (CMT).
 * **rate_code**: tarifa a aplicar. Más información en http://www.nyc.gov/html/tlc/html/passenger/taxicab_rate.shtml
 * **store_and_fwd_flag**: atributo que se desconoce su utilidad.
@@ -130,8 +131,8 @@ Esta segunda estrategia es la que se va a seguir en cada una de las variables. U
 
 ```{r}
 # Incluir las coordenadas correspondientes, y ejecutar el trozo de código
-nw <- list(lat = XX, lon = YY)
-se <- list(lat = XX, lon = YY)
+nw <- list(lat = 40.917577, lon = -74.259090)
+se <- list(lat = 40.477399, lon = -73.700272)
 ```
 
 Una vez definido el _bounding box_ se sustituye por <code>NA</code> cualquier coordenada que se encuentre fuera.
@@ -293,8 +294,8 @@ Lo primero que necesitamos es determinar dónde se encuentra el aeropuerto JFK
 
 > Q: ¿Cual es el _bounding box_ de JFK?
 ```{r}
-jfk_nw <- list(lat = XX, lon = YY)
-jfk_se <- list(lat = XX, lon = YY)
+jfk_nw <- list(lat = 40.651381, lon = -73.794694)
+jfk_se <- list(lat = 40.640668, lon = -73.776283)
 ```
 
 Así podemos obtener todos las recogidas que se producen en un día en JFK
@@ -395,13 +396,13 @@ De nuevo, nos interesa ver la distribución de la duración del viaje dependiend
 dropoff_by_hour <- cut(trips_manh_jfk$dropoff_datetime, breaks="1 hour", labels=FALSE)-1
 
 ts_dropoff <- trips_manh_jfk %>% 
-                            mutate(hour = dropoff_by_hour) %>% 
-                            group_by(hour) %>% 
-                            summarise(q5 = quantile(trip_time_in_secs/60, prob=0.05),
-                                      q25 = quantile(trip_time_in_secs/60, prob=0.25), 
-                                      q50 = median(trip_time_in_secs/60), 
-                                      q75 = quantile(trip_time_in_secs/60, prob=0.75),
-                                      q95 = quantile(trip_time_in_secs/60, prob=0.95))
+    mutate(hour = dropoff_by_hour) %>% 
+    group_by(hour) %>% 
+    summarise(q5 = quantile(trip_time_in_secs/60, prob=0.05, na.rm=T),
+              q25 = quantile(trip_time_in_secs/60, prob=0.25, na.rm=T), 
+              q50 = median(trip_time_in_secs/60, na.rm=T), 
+              q75 = quantile(trip_time_in_secs/60, prob=0.75, na.rm=T),
+              q95 = quantile(trip_time_in_secs/60, prob=0.95, na.rm=T))
 
 ts_dropoff$hour <- as.POSIXct(ts_dropoff$hour*3600, origin = "1970-01-01", tz = "UTC")
 ggplot(ts_dropoff, aes(x=hour)) + 
@@ -444,8 +445,8 @@ Para determinar esta estimación puedes emplear gráficas anteriores o ir a busc
 
 ```{r}
 # Incluir tu estimación propia de cada umbral (0-23)
-start_daytime <- XXX
-end_daytime <- XXX
+start_daytime <- 6
+end_daytime <- 20
 ```
 
 Partimos el _dataset_ en viajes nocturnos y diurnos
@@ -487,3 +488,61 @@ te puedes bajar todas las ubicaciones que tenían los Starbucks de Estados Unido
 Incluir aquí el código que genera la respuesta
 
 ***
+
+
+<!--
+Extraemos el top5 para día y noche
+
+
+# Matriz origen - destino: número de desplazamiento
+Probar con un layout rectangular
+
+
+# Matriz origen - destino: dinero
+
+# Parting Thoughts (Credit card vs cash)
+
+
+# Using locations for Starbucks stores in New York. (Downloaded on 29/01/2014 from
+# https://opendata.socrata.com/Business/All-Starbucks-Locations-in-the-US/txu4-fsic)
+-->
+
+
+<!--
+# Trip time vs. trip distance
+
+
+plot(df$trip_time_in_secs/(3600), df$trip_distance, xlab="t(h)",ylab="s(km)")
+
+Realizar el fit de la curva
+
+
+Partimos el espacio en celdas
+
+daytime_hexbin <- hexbin(daytime$pickup_longitude, daytime$pickup_latitude, xbins = 300,
+                                xbnds = c(nw$lon,se$lon),
+                                ybnds = c(se$lat,nw$lat), IDs = TRUE)
+nighttime_hexbin <- hexbin(nighttime$pickup_longitude, nighttime$pickup_latitude, xbins = 300,
+                                xbnds = c(nw$lon,se$lon),
+                                ybnds = c(se$lat,nw$lat), IDs = TRUE)
+
+
+PRUEBAS!!
+http://stackoverflow.com/questions/14495111/setting-hex-bins-in-ggplot2-to-same-size
+https://gist.github.com/wahalulu/1376861
+
+
+
+make_hexbin_ggplot <- function(hex_bin, cuts) {
+    hex_df <- data.frame(hcell2xy(hex_bin), count = hex_bin@count,
+                        xo = hex_bin@xcm, yo = hex_bin@ycm,
+                        c = cut2(hex_bin@count, g = cuts))
+    hex_plot <- ggplot(hex_df) +
+                geom_hex(aes(x = x, y = y, fill=c), stat = "identity") 
+    hex_plot
+}
+daytime_hexbin_ggplot <- make_hexbin_ggplot(daytime_hexbin, 4)
+nighttime_hexbin_ggplot <- make_hexbin_ggplot(nighttime_hexbin, 4)
+plot_grid(daytime_hexbin_ggplot, nighttime_hexbin_ggplot, labels = c('Day', 'Night'))
+```
+-->

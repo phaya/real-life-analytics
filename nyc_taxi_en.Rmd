@@ -1,7 +1,7 @@
 ---
 title: "Taxiscabs of New York City"
 author: "Pablo A Haya (change by authors' name)"
-date: "9 April, 2018"
+date: "16th May, 2018"
 output:
   prettydoc::html_pretty:
     theme: cayman
@@ -190,9 +190,9 @@ Once we have prepared a clean dataset, we will start with a series of basic ques
 This question can be answered using <code>summary</ code> or by graphically painting both the _ecdf_ and the histogram. In both cases, it is necessary to first count the number of trips made by each taxi driver using <code>table</code> .
 
 ```{r}
-medallions <- as.data.frame(table(df$medallion))
-plot1 <- ggplot(medallions, aes(Freq)) + stat_ecdf()
-plot2 <- ggplot(medallions, aes(Freq)) + geom_histogram(binwidth = 5)
+hack_license <- as.data.frame(table(df$hack_license))
+plot1 <- ggplot(hack_license, aes(Freq)) + stat_ecdf()
+plot2 <- ggplot(hack_license, aes(Freq)) + geom_histogram(binwidth = 5)
 plot_grid(plot1, plot2, labels = c("ecdf", "hist"))
 ```
 
