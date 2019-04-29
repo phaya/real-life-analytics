@@ -50,7 +50,7 @@ install.packages("scales")
 Los siguientes conjuntos de datos son necesarios para completar la práctica. Estos archivos hay que descargárselo por separado.
 
 * [Trayectos taxis](https://www.dropbox.com/s/3px4xtwb0z9r2n2/trip_data_2013-01-14.csv?dl=1): contiene todos los trayectos en Taxi realizados en la ciudad de Nueva York durante el día 14 de enero de 2013. El archivo pesa 73.4 MB
-* [Localizaciones Starbucks](https://www.dropbox.com/s/3px4xtwb0z9r2n2/trip_data_2013-01-14.csv?dl=0): contiene la coordenadas de los Starbucks que había en Nueva York en el año 2013. El archivo pesa 3.9 MB
+* [Localizaciones Starbucks](https://www.dropbox.com/s/043ake4u0q6xe05/All_Starbucks_Locations_in_the_US_2013.csv?dl=1): contiene la coordenadas de los Starbucks que había en Nueva York en el año 2013. El archivo pesa 3.9 MB
 
 ## Para saber más
 
