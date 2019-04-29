@@ -46,8 +46,8 @@ install.packages("scales")
 
 Los siguientes conjuntos de datos son necesarios para completar la práctica. Estos archivos hay que descargárselo por separado.
 
--   [Trayectos taxis](https://www.dropbox.com/s/nmtodtuvpb8f87d/trip_data_2013-01-14.csv?dl=1): contiene todos los trayectos en Taxi realizados en la ciudad de Nueva York durante el día 14 de enero de 2013. El archivo pesa 73.4 MB
--   [Localizaciones Starbucks](https://www.dropbox.com/s/lowbxfx2uohlxy3/All_Starbucks_Locations_in_the_US_2013.csv?dl=1): contiene la coordenadas de los Starbucks que había en Nueva York en el año 2013. El archivo pesa 3.9 MB
+-   [Trayectos taxis](https://www.dropbox.com/s/3px4xtwb0z9r2n2/trip_data_2013-01-14.csv?dl=1): contiene todos los trayectos en Taxi realizados en la ciudad de Nueva York durante el día 14 de enero de 2013. El archivo pesa 73.4 MB
+-   [Localizaciones Starbucks](https://www.dropbox.com/s/3px4xtwb0z9r2n2/trip_data_2013-01-14.csv?dl=0): contiene la coordenadas de los Starbucks que había en Nueva York en el año 2013. El archivo pesa 3.9 MB
 
 Para saber más
 --------------
@@ -71,8 +71,8 @@ La siguiente lista contiene enlaces de los que se han extraido información para
 
 Los dos primeros enlaces están relacionados con el conjunto de datos utilizado en la práctica, siendo el segundo la página oficial desde donde se puede bajar los viajes en taxi desde 2009. El resto de las páginas contienen datos abiertos, y en particular, en Socrata es donde se ha conseguido la ubicación de los Starbucks que se emplea durante la práctica.
 
+-   [Official TLC Trip Record Data](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
 -   [NYC Taxi Trips](http://www.andresmh.com/nyctaxitrips/)
--   [Official TLC Trip Record Data](http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml)
 -   [NYC Open Data](https://nycopendata.socrata.com/)
 -   [Socrata](https://opendata.socrata.com)
 
@@ -93,3 +93,4 @@ Referencias
 -   Weiser, Mark (1991). “The Computer for the 21st Century”. <http://www.ubiq.com/hypertext/weiser/SciAmDraft3.html>
 -   Pentland, Alex (2014) "Social Physics: How Social Networks Can Make Us Smarter". Penguin Publishing Group
 -   [MIT Human Dynamics Lab](https://www.media.mit.edu/groups/human-dynamics/overview/)
+-   [Atlas of inequality](https://inequality.media.mit.edu/)
