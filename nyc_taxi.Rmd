@@ -1,7 +1,7 @@
 ---
 title: "Taxis de Nueva York"
 author: "Pablo A Haya (Sustituir por nombre alumnos)"
-date: "16 Mayo de 2018"
+date: "27 Abril de 2020"
 output:
   prettydoc::html_pretty:
     theme: cayman
@@ -79,8 +79,8 @@ El _dataset_ tiene los siguientes campos:
 colnames(df)
 ```
 
-* **medallion**: concesión otorgada a un taxista por la ciudad de NY para poder operar un taxi amarillo (los famosos Yellow Cabs). Se puede utilizar como identificador del conductor. Más información en https://en.wikipedia.org/wiki/Taxicabs_of_New_York_City#Medallions
-* **hack_license**: la licencia que permite identificar a cada taxi. Más información en http://nycitycab.com/HackLicense.aspx
+* **medallion**: la licencia que permite identificar a cada taxi. Más información en https://en.wikipedia.org/wiki/Taxicabs_of_New_York_City#Medallions
+* **hack_license**: concesión otorgada a un taxista por la ciudad de NY para poder operar un taxi amarillo (los famosos Yellow Cabs). Se puede utilizar como identificador del conductor. Más información en http://nycitycab.com/HackLicense.aspx  
 * **vendor_id**: identificador del proveedor tecnológico que suministra el sistema de recolección de datos sobre cada viaje. Por ejemplo, Verifone Transportation Systems (VTS), o Mobile Knowledge Systems Inc (CMT).
 * **rate_code**: tarifa a aplicar. Más información en http://www.nyc.gov/html/tlc/html/passenger/taxicab_rate.shtml
 * **store_and_fwd_flag**: atributo que se desconoce su utilidad.
